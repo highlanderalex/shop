@@ -1,0 +1,9 @@
+<div id='main'>
+	<h3 align='center'>#{{detail.products[detail.id].id}} {{detail.products[detail.id].title}}</h3>
+	<p align='center'><img ng-src='img/big/{{detail.products[detail.id].bigimg}}'></p>
+	<h4 align='center'>{{detail.products[detail.id].price | currency}}</h4>
+	<p align='justify'>{{detail.products[detail.id].fulldesc}}</p>
+	<p align="center"><button type="button" class="btn btn-primary" ui-sref="index">Back</button>&nbsp;&nbsp;&nbsp;
+	<button ng-click="detail.add(detail.products[detail.id])" type="button" class="btn btn-primary">AddCart</button></p>
+</div>
+	

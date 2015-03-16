@@ -1,0 +1,13 @@
+<div id="main" ng-controller="PostsDataCntr as main">
+		<div id="product" ng-repeat="post in main.products">
+			<div id="producttop">
+				<p align="center"><a ui-sref="product({productId:{{$index}}})"><img ng-src="img/mini/{{post.miniimg}}"></a></p>
+			</div>
+			
+			<div id="productbottom">
+				<p align="center">Price <b>{{post.price | currency}}</b></p>{{post.shortdesc}}<br /><br />
+				<p align="center"><button type="button" class="btn btn-primary" ng-click="main.add(post)">AddCart</button>&nbsp;&nbsp;&nbsp;
+				<button ui-sref="product({productId:{{$index}}})" type="button" class="btn btn-primary">Preview</button></p>
+			</div>
+		</div>
+</div>
