@@ -25,6 +25,9 @@
 #menu a:link{
 	color:#fff;
 }
+#menu a:visited{
+	color:#fff;
+}
 
 a img{
 	border:0;

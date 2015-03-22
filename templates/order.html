@@ -1,12 +1,15 @@
 <div id="main" style="width:300px;margin:0 auto" ng-controller="OrderCntr as main">
 	<h3 align="center">Please input your data</h3>
-	<form novalidate class="css-form">
-    Name: <input type="text" ng-model="user.name" class="form-control" placeholder="Name input" required /><br />
-    E-mail: <input type="email" ng-model="user.email" required class="form-control" placeholder="E-mail input"/><br />
-    Gender:<br /> 
-	<input type="radio" ng-model="user.gender" value="male" />male&nbsp;&nbsp;&nbsp;
-    <input type="radio" ng-model="user.gender" value="female" />female<br /><br />
-    <p align="center"><input ng-click="main.order(user)" type="submit" class="btn btn-success" style="width:200px;" value="Order" /></p>
-  </form>
+	<form name="myForm">
+		<p>Name <input type="text" name="name"  ng-model="main.name"  ng-minlength="2" class="form-control" required> </input></p>
+		<p>Phone: <input ng-minlength="5" name="phone"   ng-model="main.phone" class="form-control" required></input></p>
+		<p>Email: <input name="input" type="email"   ng-model="main.email"  ng-minlength="5" class="form-control" required> </input>
+		</p>
+		<p>Your gender: <br />
+			<input type="radio" ng-model="main.male" value="m"> male<br/>
+			<input type="radio" ng-model="main.male" value="w"> female <br/>
+		</p>
+		<p><button ng-click="main.order(myForm)">Send data</button></p>
+		</form>
   
 </div>

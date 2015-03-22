@@ -24,6 +24,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
     });
 });
 
+//Сервис для получения данных
 app.service("Products", function($http) {
   return {
 	getProducts: function(callback) {
@@ -32,97 +33,185 @@ app.service("Products", function($http) {
   }  
 });
 
-app.factory("AddCart", function(){
-    return {
-        addProduct: function(obj){
-			//localStorage.removeItem('cart');
-			var cartData = JSON.parse(localStorage.getItem('cart')) || {};
-			if(cartData.hasOwnProperty(obj.id)){ // если такой товар уже в корзине, то добавляем +1 к его количеству
-				cartData[obj.id]['count'] += 1;
-			} else {
-				cartData[obj.id] = obj;
+//Фабрика для работы с корзиной
+app.factory("Cart", function(){
+    var mycart={"count":0,
+				"arr": new Array(),
+				"addToCart": null,
+				"delFromCart": null,
+				"setStorage": null,
+				"getStorage": null
+	  };
+	  
+	  mycart.addToCart=function (exp,count){
+			var obj = {
+						'exp': exp,
+						'count': count
+					  };
+		var flag = true;
+		
+		this.arr.forEach(function(entry) {
+			if(null !== entry){
+				if(entry.exp.id == obj.exp.id){ 
+					if(entry.count == obj.count) {
+						flag = false;
+						return;
+					}
+					else {
+						entry.count = obj.count;
+						flag = false;
+						return;
+					}
+				}
 			}
+		});
+		
+		if(flag === true){
+		
+			this.arr.push(obj);
+			alert('Product #' + exp.id + ' add to cart');
+		} else {
+		alert('Product #' + exp.id + ' exist to cart');
+		}
+		this.count=this.arr.length;
+		this.setStorage();
+	  }
+  
+	mycart.delFromCart= function (index)
+	{
+			this.arr.splice(index,1);
+			this.count=this.arr.length;
+			this.setStorage();
+	}
+	
+	mycart.setStorage = function ()
+	{	
+		var tempArr = {
+						"count":this.count,
+						"arr":this.arr
+					  };
+		window.localStorage.alexcart = JSON.stringify(tempArr);	
+	}
+	
+	mycart.getStorage = function () {
+		
+		if(this.count > 0){
+			return;
+		}
+		
+		
+		if( typeof(window.localStorage.alexcart) == "string"){
+			var temp = $.parseJSON('[' + window.localStorage.alexcart + ']');
+			if(typeof(temp[0].count) == "number"){
+				temp[0].arr.forEach(function(entry) {
+					mycart.addToCart(entry.exp, entry.count);
+				});	
+			}
+		}		
+	} 
+	
+	
+	mycart.clear= function(){
+		this.arr= new Array();
+		this.count=0;
+		this.setStorage();
+	}
+	
+  return mycart;
+	
+});
+
+
+//Контроллер корзины
+app.controller("CartCntr", function(Cart) {
+	
+	Cart.getStorage(); 
+	this.cart = Cart;
+	   
+	   this.items = Cart.arr;
+		
+		
+		this.total= function ()
+		{
+			var total = 0;
+			this.items.forEach(function(item) {
+				total += item.exp.price * item.count;
+			})
+			Cart.setStorage();
+			return total;
+		}
+		
+		this.remove = function (index){
 			
-			localStorage.setItem('cart', JSON.stringify(cartData));
-            alert('Product #' + obj.id + ' add to cart');
-			//return counter;
-        }
-	}
+			Cart.delFromCart(index);
+			if(0 == Cart.count) {
+				document.location.href = 'index.html#/';
+			}
+		}
 	
 });
 
-app.factory("RemoveCart", function(){
-	return {
-		remove: function(id){
-			var cartData = JSON.parse(localStorage.getItem('cart'));
-			delete cartData[id];
-			localStorage.setItem('cart', JSON.stringify(cartData));
-			alert('Delete product #' + id);
-		} 
-	}
-   
+//Контроллер заказа
+app.controller("OrderCntr", function(Cart) {
+	   this.error = ''; 
+	   this.name = '';
+	   this.email = '';
+	   this.male = 'male';
+	   this.phone = '';
+	   	
+	   this.order = function (form)
+	   {
+			
+		   if(form.$valid){
+				Cart.getStorage(); 
+				this.cart = Cart;
+				this.items = Cart.arr;
+				this.total= function (){
+					var total = 0;
+					this.items.forEach(function(item) {
+						total += item.exp.price * item.count;
+					})
+					return total;
+				}
+				alert('Thanks for your purchases \nProducts: ' + this.cart.count + ' Total: $' + this.total());
+				document.location.href = 'index.html#/';
+				Cart.clear();
+				
+			}
+		}
 });
 
-app.controller("CartCntr", function(AddCart, RemoveCart) {
-	var cartData = AddCart;
-	
-	this.load = JSON.parse(localStorage.getItem('cart')) || 1;
-	var totalprice = 0;
-	var qty = 0;
-	$.each(this.load, function(k, val) {
-							totalprice += val.price*val.count;
-							qty += val.count;
-						});
-	this.totalprice = totalprice;
-	this.qty = qty;
-	var removeData = RemoveCart;
-	this.remove = function(id){
-       return removeData.remove(id);
-	};
-	console.log(this.load);
-	
-});
-
-app.controller("OrderCntr", function() {
-	this.user = {};
-	this.order = function(user) {
-        this.user = angular.copy(user);
-		alert('Your name: ' + this.user.name + ' your email: ' + this.user.email);
-    };
-});
-
-app.controller("PostsDataCntr", function(Products, AddCart) {
-	//localStorage.clear();
+//Контроллер главной страницы
+app.controller("PostsDataCntr", function(Products, Cart) {
 	var _this = this;
 	products = Products.getProducts(function(result){
 		_this.products = result;
 		return _this.products;
 	});
-	var cart = AddCart;
-	//console.log(cart);
-	this.add = function(obj){
-       return cart.addProduct(obj);
+	var myCart = Cart;
+	this.buy = function(obj){		
+		myCart.addToCart(obj,1);
 	}
-	
-	
 	
 });
 
-app.controller("ProductDetailCntr", function ($stateParams, Products, AddCart) {
+//Контроллер отдельного продукта
+app.controller("ProductDetailCntr", function ($stateParams, Products, Cart) {
 	var _this = this;
 	products = Products.getProducts(function(result){
 		_this.products = result;
 		return _this.products;
 	})
 	this.id = $stateParams.productId;
-	var cart = AddCart;
-	//console.log(cart);
-	this.add = function(obj){
-       return cart.addProduct(obj);
+	
+	var myCart = Cart;
+	this.buy = function(obj){		
+		myCart.addToCart(obj,1);	
 	}
-	//this.product = _this.products[id];
+	
 });
 
+//Директивы
 app.directive('headerShop', function() {
   return {
       restrict: 'AE',

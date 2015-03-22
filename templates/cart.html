@@ -1,15 +1,14 @@
 <div id="main" ng-controller="CartCntr as main">
-	<!--div ng-show="main.load === 1"><h3 align="center">Your cart is empty</h3></div-->
 	<div>
 		<table class="table table-striped">
 			<tr>
 				<td><b>#</b></td><td><b>Title</b></td><td><b>Count</b></td><td><b>Price</b></td><td><b>Remove</b></td>
 			</tr>
-			<tr ng-repeat="product in main.load">
-				<td>{{$index+1}}</td><td>{{product.title}}</td><td>{{product.count}}</td><td>{{product.price*product.count | currency}}</td><td><button type="button" class="btn btn-primary" ng-click="main.remove(product.id)">Remove</button></td>
+			<tr ng-repeat="product in main.items">
+				<td>{{$index+1}}</td><td>{{product.exp.title}}</td><td><input type="number" ng-model="product.count" min="1" style="width:50px;" required></td><td>{{product.exp.price*product.count | currency}}</td><td><button type="button" class="btn btn-primary" ng-click="main.remove(product.id)">Remove</button></td>
 			</tr>
 		</table>
-		<h4 align="center">Products {{main.qty}} Total price: {{main.totalprice | currency}}</h4>
-		<div ng-show="main.qty > 0"><p align="center"><button type="button" class="btn btn-success" style="width:300px;" ui-sref="order">Order</button></p></div>
+		<h4 align="center">Total price: {{main.total() | currency}}</h4>
+		<div ng-show="{{main.total() > 0 }}"><p align="center"><button type="button" class="btn btn-success" style="width:300px;" ui-sref="order">Order</button></p></div>
 	</div>
 </div>
