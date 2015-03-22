@@ -192,6 +192,7 @@ app.controller("PostsDataCntr", function(Products, Cart) {
 	this.buy = function(obj){		
 		myCart.addToCart(obj,1);
 	}
+	this.column = 3;
 	
 });
 

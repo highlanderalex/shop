@@ -1,4 +1,5 @@
-<div id="main" ng-controller="PostsDataCntr as main">
+<div id="main" ng-controller="PostsDataCntr as main" style="width:{{main.column*300}}px;">
+	<p align="center">Column&nbsp;&nbsp;&nbsp;<input type="number" ng-model="main.column" min="1" max="4" style="width:50px;" required></p>
 		<div id="product" ng-repeat="post in main.products">
 			<div id="producttop">
 				<p align="center"><a ui-sref="product({productId:{{$index}}})"><img ng-src="img/mini/{{post.miniimg}}"></a></p>
